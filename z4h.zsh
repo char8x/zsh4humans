@@ -211,7 +211,7 @@ if '[' '-n' "${_z4h_bootstrap-}" ']'; then
       'exit' '1'
     fi
 
-    v="${Z4H_URL#https://raw.githubusercontent.com/romkatv/zsh4humans/v}"
+    v="${Z4H_URL#https://raw.githubusercontent.com/char8x/zsh4humans/v}"
 
     if '[' '-z' "$v" ']' || '[' "$v" '=' "$Z4H_URL" ']'; then
       >&2 'printf' '\033[33mz4h\033[0m: invalid \033[1mZ4H_URL\033[0m: \033[31m%s\033[0m\n' "$Z4H_URL"
