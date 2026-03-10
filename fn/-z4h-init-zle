@@ -53,9 +53,9 @@ for pkg in fzf powerlevel10k systemd zsh-history-substring-search \
     : # channel set to none, skip silently
   elif [[ -d $Z4H/$pkg ]]; then
     _z4h_use[$pkg]=1
-    print -Pru2 -- "%F{2}z4h%f: %B$pkg%b loaded (local: $Z4H/$pkg)"
+    [[ -n $Z4H_DEBUG ]] && print -Pru2 -- "%F{2}z4h%f: %B$pkg%b loaded (local: $Z4H/$pkg)"
   else
-    print -Pru2 -- "%F{3}z4h%f: %B$pkg%b skipped (not found at $Z4H/$pkg)"
+    [[ -n $Z4H_DEBUG ]] && print -Pru2 -- "%F{3}z4h%f: %B$pkg%b skipped (not found at $Z4H/$pkg)"
   fi
 done
 typeset -grA _z4h_use
