@@ -291,13 +291,13 @@ else
   z4h="$HOME"/.z4h.tmp."$$"
 fi
 
-url='https://raw.githubusercontent.com/romkatv/zsh4humans/v5'
+url='https://raw.githubusercontent.com/char8x/zsh4humans/v5'
 
 >&2 'printf' '\n'
 >&2 'printf' 'Settings up \033[33mZsh For Humans\033[0m...\n'
 >&2 'printf' '\n'
 
->&2 printf '\033[33mz4h\033[0m: fetching \033[4mz4h.zsh\033[0m from \033[1mgithub.com/romkatv/zsh4humans\033[0m\n'
+>&2 printf '\033[33mz4h\033[0m: fetching \033[4mz4h.zsh\033[0m from \033[1mgithub.com/char8x/zsh4humans\033[0m\n'
 if ! err="$($fetch "$z4h" '--' "$url"/z4h.zsh 2>&1)"; then
   >&2 'printf' "%s\n" "$err"
   >&2 'printf' '\033[33mz4h\033[0m: failed to download \033[31m%s\033[0m\n' "$url"/z4h.zsh
