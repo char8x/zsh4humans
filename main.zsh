@@ -41,6 +41,12 @@ zmodload zsh/{datetime,langinfo,parameter,system,terminfo,zutil} || return
 zmodload -F zsh/files b:{zf_mkdir,zf_mv,zf_rm,zf_rmdir,zf_ln}    || return
 zmodload -F zsh/stat b:zstat                                     || return
 
+# Ensure required directories exist (normally created by sc/setup during
+# bootstrap, but may be missing when zsh4humans is set up manually).
+[[ -d $Z4H/tmp ]]         || zf_mkdir -p -- $Z4H/tmp         || return
+[[ -d $Z4H/cache ]]       || zf_mkdir -p -- $Z4H/cache       || return
+[[ -d $Z4H/stickycache ]] || zf_mkdir -p -- $Z4H/stickycache || return
+
 () {
   if [[ $1 != $Z4H/zsh4humans/main.zsh ]]; then
     print -Pru2 -- "%F{3}z4h%f: confusing %Umain.zsh%u location: %F{1}${1//\%/%%}%f"
@@ -120,8 +126,8 @@ if [[ $ZSH_PATCHLEVEL == zsh-5.8-0-g77d203f && $_z4h_exe == */bin/zsh &&
   fi
 fi
 
-path+=($Z4H/fzf/bin)
-manpath+=($Z4H/fzf/man)
+[[ -d $Z4H/fzf/bin ]] && path+=($Z4H/fzf/bin)
+[[ -d $Z4H/fzf/man ]] && manpath+=($Z4H/fzf/man)
 
 : ${GITSTATUS_CACHE_DIR=$Z4H/cache/gitstatus}
 : ${ZSH=$Z4H/ohmyzsh/ohmyzsh}
@@ -168,7 +174,7 @@ function -z4h-cmd-load() {
     emulate -L zsh -o extended_glob
     local pkgs=(${(M)@:#/*} $Z4H/${^${@:#/*}})
     pkgs=(${^${(u)pkgs}}(-/FN))
-    local dirs=(${^pkgs}/functions(-/FN))
+    local dirs=(${^pkgs}/{functions,site-functions}(-/FN))
     local funcs=(${^dirs}/^([_.]*|prompt_*_setup|README*|*~|*.zwc)(-.N:t))
     fpath+=($pkgs $dirs)
     (( $#funcs )) && autoload -Uz -- $funcs
@@ -178,6 +184,8 @@ function -z4h-cmd-load() {
         files+=($dir/init.zsh)
       elif [[ -s $dir/${dir:t}.plugin.zsh ]]; then
         files+=($dir/${dir:t}.plugin.zsh)
+      elif [[ -s $dir/${dir:t}.zsh ]]; then
+        files+=($dir/${dir:t}.zsh)
       fi
     done
   } "$@"
@@ -359,13 +367,12 @@ function -z4h-cmd-init() {
       fi
     fi
 
-    if [[ -x /usr/lib/systemd/systemd || -x /lib/systemd/systemd ]]; then
+    if [[ -x /usr/lib/systemd/systemd || -x /lib/systemd/systemd ]] && [[ -d $Z4H/systemd ]]; then
       _z4h_install_queue+=(systemd)
     fi
-    _z4h_install_queue+=(
-      zsh-history-substring-search zsh-autosuggestions zsh-completions
-      zsh-syntax-highlighting terminfo fzf powerlevel10k)
-    (( install_tmux )) && _z4h_install_queue+=(tmux)
+    # Only download terminfo; other packages are expected to already exist
+    # at $Z4H/<pkg>/ (e.g. via symlinks to Nix store or system paths).
+    _z4h_install_queue+=(terminfo)
     if ! -z4h-install-many; then
       [[ -e $Z4H/.updating ]] || -z4h-error-command init
       return 1
