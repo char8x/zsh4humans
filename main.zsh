@@ -367,12 +367,14 @@ function -z4h-cmd-init() {
       fi
     fi
 
-    if [[ -x /usr/lib/systemd/systemd || -x /lib/systemd/systemd ]] && [[ -d $Z4H/systemd ]]; then
-      _z4h_install_queue+=(systemd)
-    fi
-    # Only download terminfo; other packages are expected to already exist
-    # at $Z4H/<pkg>/ (e.g. via symlinks to Nix store or system paths).
-    _z4h_install_queue+=(terminfo)
+    # if [[ -x /usr/lib/systemd/systemd || -x /lib/systemd/systemd ]] && [[ ! -d $Z4H/systemd ]]; then
+    #   _z4h_install_queue+=(systemd)
+    # fi
+    for pkg in terminfo fzf powerlevel10k zsh-history-substring-search \
+          zsh-completions zsh-autosuggestions zsh-syntax-highlighting; do
+      zstyle -t :z4h:$pkg channel none || { [[ ! -d $Z4H/$pkg ]] && _z4h_install_queue+=($pkg); }
+    done
+    (( install_tmux )) && _z4h_install_queue+=(tmux)
     if ! -z4h-install-many; then
       [[ -e $Z4H/.updating ]] || -z4h-error-command init
       return 1
