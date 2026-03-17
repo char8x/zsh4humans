@@ -25,6 +25,13 @@ done
 # exec 3>&2 2>/tmp/log
 
 {
+  # --- 新增代码开始 ---
+  # 挂起 p10k：从最高层级短路 ZLE hook，防止 fzf 补全期间由于
+  # buffer 处于中间状态而导致的变量展开污染。
+  local -i p9k_was_enabled=${__p9k_enabled:-0}
+  typeset -g __p9k_enabled=0
+  # --- 新增代码结束 ---
+
   # setopt xtrace
 
   function zstyle() {
@@ -120,7 +127,7 @@ done
         if [[ $_z4h_arr == '('* ]]; then
           _z4h_D=(${=_z4h_arr[2,-2]})
         else
-          _z4h_D=("${(@P)_z4h_arr}") 
+          _z4h_D=("${(@P)_z4h_arr}")
         fi
       }
     fi
@@ -176,7 +183,7 @@ done
 
       local buf=$BUFFER
       local -i cursor=CURSOR
-      
+
       local -a _z4h_words=()
       local -a _z4h_descrs=()
       local -a _z4h_scaffolds=()
@@ -265,6 +272,11 @@ done
     }
   done
 } always {
+  # --- 新增代码开始 ---
+  # 恢复 p10k 状态，确保即使 fzf 异常中断也不会导致提示符永久失效
+  typeset -g __p9k_enabled=$p9k_was_enabled
+  # --- 新增代码结束 ---
+
   # unsetopt xtrace
   # exec 2>&3 3>&-
   local f=
